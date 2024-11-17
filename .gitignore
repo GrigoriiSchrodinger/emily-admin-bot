@@ -157,3 +157,5 @@ cython_debug/
 *.mp4
 *.mp3
 /.idea
+/media
+*.zip
