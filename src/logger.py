@@ -20,9 +20,6 @@ class LokiHandler(logging.Handler):
             "time": record.created
         }
 
-        if record.levelname == "ERROR":
-            tags_with_level["error_count"] = 1
-
         payload = {
             "streams": [
                 {
@@ -35,9 +32,11 @@ class LokiHandler(logging.Handler):
         }
         headers = {'Content-Type': 'application/json'}
         try:
-            requests.post(self.url, data=json.dumps(payload), headers=headers)
-        except Exception as e:
-            print(f"Failed to send log to Loki: {e}")
+            response = requests.post(self.url, data=json.dumps(payload), headers=headers)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to send log to Loki: {e}, Response: {getattr(e.response, 'text', 'No response')}")
+
 
 
 logger = logging.getLogger("Emily")
