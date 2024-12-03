@@ -1,5 +1,7 @@
 import json
+
 import redis
+
 
 class RedisQueue:
     def __init__(self, queue_name, host='localhost', port=6379, db=0):
