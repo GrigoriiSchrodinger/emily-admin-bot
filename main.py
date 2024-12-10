@@ -1,6 +1,8 @@
 import asyncio
 import logging
 
+import requests
+
 from src.conf import redis
 from src.feature.bot import TelegramBot
 from src.feature.file_manager import FileManager
@@ -34,7 +36,13 @@ async def send_message():
             else:
                 media_chunk = list_media[:10]
                 await bot.send_media_group(media=media_chunk)
-
+        url = "http://0.0.0.0:8000/news/create/send-news"
+        data = {
+            "channel": message["channel"],
+            "text": message["content"],
+            "id_post": message["id_post"]
+        }
+        requests.post(url, json=data)
     except Exception as e:
         logging.error(f"Произошла ошибка: {str(e)}")
 
