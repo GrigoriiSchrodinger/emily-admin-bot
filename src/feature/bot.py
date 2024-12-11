@@ -1,13 +1,14 @@
 import asyncio
+import json
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.exceptions import TelegramRetryAfter
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InputMediaPhoto, FSInputFile, InputMediaVideo
 
-from src.conf import API_TOKEN, PUBLIC_CHAT_ID
+from src.conf import API_TOKEN, PUBLIC_CHAT_ID, redis
+from src.feature.request.RequestHandler import RequestDataBase
 from src.logger import logger
 
 
@@ -16,6 +17,7 @@ class TelegramBot:
         self.token = API_TOKEN
         self.ParseMode = ParseMode.HTML
         self.bot = self._create_bot()
+        self.db = RequestDataBase()
 
     def _create_bot(self):
         try:
@@ -30,21 +32,29 @@ class TelegramBot:
     def start(self):
         self.create_dispatcher()
 
-    async def send_message(self, message: str):
+    async def send_message(self, message: dict):
         try:
             logger.debug(f"Отправка текста - {message}")
-            await self.bot.send_message(chat_id=PUBLIC_CHAT_ID, text=message)
-        except TelegramRetryAfter as error:
-            logger.error(f"Ошибка: {error.message}")
-            await self._retry_send_media_message(message=message, retry_after=error.retry_after)
+            await self.bot.send_message(chat_id=PUBLIC_CHAT_ID, text=message["content"])
+        except Exception as error:
+            logger.error(f"Ошибка: {error}")
+            detail_post = self.db.get_detail_news_by_channel_id_post(
+                channel=message["channel"],
+                id_post=message["id_post"]
+            )
+            redis.send_to_queue(queue="text_conversion", data=json.dumps(detail_post))
 
-    async def send_media_group(self, media: list):
+    async def send_media_group(self, media: list, message: dict):
         try:
             logger.debug(f"Отправка медиа - {media}")
             await self.bot.send_media_group(chat_id=PUBLIC_CHAT_ID, media=media)
-        except TelegramRetryAfter as error:
-            logger.error(f"Ошибка: {error.message}")
-            await self._retry_send_media_group(media, error.retry_after)
+        except Exception as error:
+            logger.error(f"Ошибка: {error}")
+            detail_post = self.db.get_detail_news_by_channel_id_post(
+                channel=message["channel"],
+                id_post=message["id_post"]
+            )
+            redis.send_to_queue(queue="text_conversion", data=json.dumps(detail_post))
 
     async def _retry_send_media_group(self, media: list, retry_after: int):
         logger.debug(f"Повторная отправка медиа через {retry_after} секунд - {media}")

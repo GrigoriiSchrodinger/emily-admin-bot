@@ -24,18 +24,17 @@ async def send_message():
             channel=message["channel"],
             id_post=message["id_post"]
         )
-
         if not path_media:
             logging.error("Ошибка: Не удалось загрузить медиафайлы.")
-            await bot.send_message(message=message["content"])
+            await bot.send_message(message=message)
         else:
             list_media = bot.prepare_media(media, message["content"])
             if not list_media:
                 logging.error("Ошибка: Не удалось подготовить медиафайлы.")
-                await bot.send_message(message=message["content"])
+                await bot.send_message(message=message)
             else:
                 media_chunk = list_media[:10]
-                await bot.send_media_group(media=media_chunk)
+                await bot.send_media_group(media=media_chunk, message=message)
         url = "http://0.0.0.0:8000/news/create/send-news"
         data = {
             "channel": message["channel"],

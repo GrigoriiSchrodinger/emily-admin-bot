@@ -3,9 +3,11 @@ from typing import Optional
 import requests
 from pydantic import BaseModel, ValidationError
 
+from src.feature.request.schemas import DetailByChannelIdPost
+
 
 class RequestHandler:
-    def __init__(self, base_url, headers=None, timeout=10):
+    def __init__(self, base_url="http://0.0.0.0:8000/news", headers=None, timeout=10):
         """
         Инициализация класса для работы с запросами.
 
@@ -18,8 +20,8 @@ class RequestHandler:
         self.timeout = timeout
 
     def get(
-            self, endpoint: str, path_params: Optional[BaseModel] = None, query_params: Optional[BaseModel] = None,
-            response_model: Optional[BaseModel] = None
+            self, endpoint: str, path_params: Optional = None, query_params: Optional = None,
+            response_model: Optional = None
     ):
         """
         Выполняет GET-запрос к указанному endpoint.
@@ -85,22 +87,29 @@ class RequestHandler:
             print(f"Ошибка валидации данных ответа: {ve}")
             return None
 
+    def set_headers(self, headers):
+        """
+        Устанавливает или обновляет заголовки для запросов.
 
-def set_headers(self, headers):
-    """
-    Устанавливает или обновляет заголовки для запросов.
+        :param self:
+        :param headers: Словарь с заголовками
+        """
+        self.headers.update(headers)
 
-    :param self:
-    :param headers: Словарь с заголовками
-    """
-    self.headers.update(headers)
+    def set_timeout(self, timeout):
+        """
+        Устанавливает тайм-аут для запросов.
+
+        :param self:
+        :param timeout: Тайм-аут в секундах
+        """
+        self.timeout = timeout
 
 
-def set_timeout(self, timeout):
-    """
-    Устанавливает тайм-аут для запросов.
-
-    :param self:
-    :param timeout: Тайм-аут в секундах
-    """
-    self.timeout = timeout
+class RequestDataBase(RequestHandler):
+    def get_detail_news_by_channel_id_post(self, channel: str, id_post: int):
+        details = DetailByChannelIdPost(
+            channel=channel,
+            id_post=id_post
+        )
+        return self.get(endpoint="detail-by-channel-id_post/{channel}/{id_post}", path_params=details)
