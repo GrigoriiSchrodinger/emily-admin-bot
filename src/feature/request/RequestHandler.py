@@ -1,13 +1,14 @@
-from typing import Optional
+from typing import Optional, Any
 
 import requests
 from pydantic import BaseModel, ValidationError
 
-from src.feature.request.schemas import DetailByChannelIdPost
+from src.feature.request.schemas import DetailByChannelIdPost, DetailBySeed, DetailBySeedResponse, \
+    ToggleMediaResolution, ToggleMediaResolutionResponse
 
 
 class RequestHandler:
-    def __init__(self, base_url="http://0.0.0.0:8000/news", headers=None, timeout=10):
+    def __init__(self, base_url="http://0.0.0.0:8000/", headers=None, timeout=10):
         """
         Инициализация класса для работы с запросами.
 
@@ -62,7 +63,7 @@ class RequestHandler:
         response.raise_for_status()
         return response.json()
 
-    def post(self, endpoint: str, data: Optional[BaseModel] = None, response_model: Optional[BaseModel] = None):
+    def post(self, endpoint: str, data: Optional[BaseModel] = None, response_model: Optional = None):
         """
             Выполняет POST-запрос к указанному endpoint.
 
@@ -112,4 +113,19 @@ class RequestDataBase(RequestHandler):
             channel=channel,
             id_post=id_post
         )
-        return self.get(endpoint="detail-by-channel-id_post/{channel}/{id_post}", path_params=details)
+        return self.get(endpoint="all-news/detail-by-channel-id_post/{channel}/{id_post}", path_params=details)
+
+    def __get_detail_by_seed__(self, seed: str):
+        seed_req = DetailBySeed(
+            seed=seed
+        )
+        return self.get(endpoint='all-news/detail-by-seed/{seed}', path_params=seed_req, response_model=DetailBySeedResponse)
+
+    def get_detail_by_seed(self, seed: str) -> DetailBySeedResponse:
+        return self.__get_detail_by_seed__(seed=seed)
+
+    def get_media_resolution(self, seed: str):
+        data = ToggleMediaResolution(
+            seed=seed
+        )
+        return self.post(endpoint='setting/toggle-media-resolution-by-seed', data=data, response_model=ToggleMediaResolutionResponse).media_resolution

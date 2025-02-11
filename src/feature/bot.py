@@ -38,11 +38,7 @@ class TelegramBot:
             await self.bot.send_message(chat_id=PUBLIC_CHAT_ID, text=message["content"])
         except Exception as error:
             logger.error(f"Ошибка: {error}")
-            detail_post = self.db.get_detail_news_by_channel_id_post(
-                channel=message["channel"],
-                id_post=message["id_post"]
-            )
-            redis.send_to_queue(queue="text_conversion", data=json.dumps(detail_post))
+            # redis.send_to_queue(queue="text_conversion", data=json.dumps(message))
 
     async def send_media_group(self, media: list, message: dict):
         try:

@@ -6,6 +6,7 @@ import requests
 from src.conf import redis
 from src.feature.bot import TelegramBot
 from src.feature.file_manager import FileManager
+from src.feature.request.RequestHandler import RequestDataBase
 
 logging.basicConfig(level=logging.INFO)
 
@@ -13,32 +14,41 @@ logging.basicConfig(level=logging.INFO)
 async def send_message():
     try:
         message = redis.receive_from_queue()
-        if not message or "content" not in message or not isinstance(message["content"], str):
-            logging.error("Ошибка: Нет контента или неверный формат данных.")
-            return
+        logging.info(message["seed"])
 
-        logging.info(message["content"])
-
-        path_media, media = await asyncio.to_thread(
-            file_manager.download_media_files,
-            channel=message["channel"],
-            id_post=message["id_post"]
-        )
-        if not path_media:
-            logging.error("Ошибка: Не удалось загрузить медиафайлы.")
-            await bot.send_message(message=message)
-        else:
-            list_media = bot.prepare_media(media, message["content"])
-            if not list_media:
-                logging.error("Ошибка: Не удалось подготовить медиафайлы.")
+        detail_by_seed = request_db.get_detail_by_seed(message["seed"])
+        message = {
+            "content": detail_by_seed.new_content,
+            "channel": detail_by_seed.channel,
+            "id_post": detail_by_seed.id_post,
+            "outlinks": detail_by_seed.outlinks,
+            "seed": message["seed"],
+            "media_resolution": detail_by_seed.media_resolution,
+        }
+        if message["media_resolution"]:
+            path_media, media = await asyncio.to_thread(
+                file_manager.download_media_files,
+                channel=message["channel"],
+                id_post=message["id_post"]
+            )
+            if not path_media:
+                logging.error("Ошибка: Не удалось загрузить медиафайлы.")
                 await bot.send_message(message=message)
             else:
-                media_chunk = list_media[:10]
-                await bot.send_media_group(media=media_chunk, message=message)
-        url = "http://0.0.0.0:8000/news/create/send-news"
+                list_media = bot.prepare_media(media, message["content"])
+                if not list_media:
+                    logging.error("Ошибка: Не удалось подготовить медиафайлы.")
+                    await bot.send_message(message=message)
+                else:
+                    media_chunk = list_media[:10]
+                    await bot.send_media_group(media=media_chunk, message=message)
+        else:
+            await bot.send_message(message=message)
+
+
+        url = "http://0.0.0.0:8000/send-news/create"
         data = {
             "channel": message["channel"],
-            "text": message["content"],
             "id_post": message["id_post"]
         }
         requests.post(url, json=data)
@@ -50,6 +60,7 @@ async def main() -> None:
         await send_message()
 
 if __name__ == '__main__':
+    request_db = RequestDataBase()
     file_manager = FileManager()
     bot = TelegramBot()
     bot.start()
