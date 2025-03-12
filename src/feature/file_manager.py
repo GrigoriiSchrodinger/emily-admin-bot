@@ -36,7 +36,7 @@ class FileManager:
 
     def download_media_files(self, channel: str, id_post: int) -> tuple[str, list[str]]:
         """Скачивает медиафайлы поста и сохраняет их в отдельную папку."""
-        url = f"http://0.0.0.0:8000/media/download/{id_post}/{channel}"
+        url = f"http://emily-database-handler:8000/media/download/{id_post}/{channel}"
         try:
             response = requests.post(url)
             return self.handle_response(response, channel, id_post)

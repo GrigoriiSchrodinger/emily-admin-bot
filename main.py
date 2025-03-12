@@ -46,7 +46,7 @@ async def send_message():
             await bot.send_message(message=message)
 
 
-        url = "http://0.0.0.0:8000/send-news/create"
+        url = "http://emily-database-handler:8000/send-news/create"
         data = {
             "channel": message["channel"],
             "id_post": message["id_post"]
