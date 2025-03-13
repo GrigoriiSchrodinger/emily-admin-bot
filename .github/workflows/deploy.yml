@@ -57,6 +57,7 @@ jobs:
             --name ${{ github.event.repository.name }} \
             --env-file /path/to/deployment/.env \
             -v ${{ github.event.repository.name }}_data:/app/data \
+            --storage-opt size=20G \
             --network app \
             --restart unless-stopped \
             ${{ github.event.repository.name }}:latest
