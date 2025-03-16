@@ -5,7 +5,7 @@ from io import BytesIO
 
 import requests
 
-from src.conf import get_url_emily_database_handler
+from src.service_url import get_url_emily_database_handler
 
 
 class FileManager:

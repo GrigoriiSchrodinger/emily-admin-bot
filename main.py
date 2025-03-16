@@ -3,10 +3,11 @@ import logging
 
 import requests
 
-from src.conf import redis, get_url_emily_database_handler
+from src.conf import redis
 from src.feature.bot import TelegramBot
 from src.feature.file_manager import FileManager
 from src.feature.request.RequestHandler import RequestDataBase
+from src.service_url import get_url_emily_database_handler
 
 logging.basicConfig(level=logging.INFO)
 

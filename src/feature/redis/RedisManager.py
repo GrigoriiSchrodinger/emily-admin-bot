@@ -2,9 +2,11 @@ import json
 
 import redis
 
+from src.service_url import get_url_redis
+
 
 class RedisQueue:
-    def __init__(self, queue_name, host, port=6379, db=0):
+    def __init__(self, queue_name, host=get_url_redis(), port=6379, db=0):
         """
         Инициализирует подключение к Redis и имя очереди.
         """

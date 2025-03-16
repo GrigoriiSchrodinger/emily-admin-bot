@@ -3,9 +3,9 @@ from typing import Optional
 import requests
 from pydantic import BaseModel, ValidationError
 
-from src.conf import get_url_emily_database_handler
 from src.feature.request.schemas import DetailByChannelIdPost, DetailBySeed, DetailBySeedResponse, \
     ToggleMediaResolution, ToggleMediaResolutionResponse
+from src.service_url import get_url_emily_database_handler
 
 
 class RequestHandler:
