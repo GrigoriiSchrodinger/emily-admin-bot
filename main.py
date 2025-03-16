@@ -3,7 +3,7 @@ import logging
 
 import requests
 
-from src.conf import redis
+from src.conf import redis, get_url_emily_database_handler
 from src.feature.bot import TelegramBot
 from src.feature.file_manager import FileManager
 from src.feature.request.RequestHandler import RequestDataBase
@@ -46,7 +46,7 @@ async def send_message():
             await bot.send_message(message=message)
 
 
-        url = "http://emily-database-handler:8000/send-news/create"
+        url = f"{get_url_emily_database_handler()}/send-news/create"
         data = {
             "channel": message["channel"],
             "id_post": message["id_post"]

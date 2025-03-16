@@ -5,11 +5,11 @@ from io import BytesIO
 
 import requests
 
-from src.conf import URL_DOWNLOAD
+from src.conf import get_url_emily_database_handler
 
 
 class FileManager:
-    def __init__(self, url_download: str = URL_DOWNLOAD):
+    def __init__(self, url_download: str = get_url_emily_database_handler()):
         self.url_download = url_download
 
     @staticmethod
@@ -36,7 +36,7 @@ class FileManager:
 
     def download_media_files(self, channel: str, id_post: int) -> tuple[str, list[str]]:
         """Скачивает медиафайлы поста и сохраняет их в отдельную папку."""
-        url = f"http://emily-database-handler:8000/media/download/{id_post}/{channel}"
+        url = f"{self.url_download}/media/download/{id_post}/{channel}"
         try:
             response = requests.post(url)
             return self.handle_response(response, channel, id_post)

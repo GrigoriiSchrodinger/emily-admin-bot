@@ -1,14 +1,15 @@
-from typing import Optional, Any
+from typing import Optional
 
 import requests
 from pydantic import BaseModel, ValidationError
 
+from src.conf import get_url_emily_database_handler
 from src.feature.request.schemas import DetailByChannelIdPost, DetailBySeed, DetailBySeedResponse, \
     ToggleMediaResolution, ToggleMediaResolutionResponse
 
 
 class RequestHandler:
-    def __init__(self, base_url="http://emily-database-handler:8000/", headers=None, timeout=10):
+    def __init__(self, base_url=get_url_emily_database_handler(), headers=None, timeout=10):
         """
         Инициализация класса для работы с запросами.
 

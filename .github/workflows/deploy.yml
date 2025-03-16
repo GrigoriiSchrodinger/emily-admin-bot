@@ -49,6 +49,7 @@ jobs:
           cat > /path/to/deployment/.env << EOL
         API_TOKEN=${{ secrets.API_TOKEN }}
         PUBLIC_CHAT_ID=${{ secrets.PUBLIC_CHAT_ID }}
+        ENV=production
         
         EOL
         
