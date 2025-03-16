@@ -44,13 +44,15 @@ jobs:
             # Если есть старый контейнер, останавливаем и удаляем его
             docker stop ${{ github.event.repository.name }} || true
             docker rm ${{ github.event.repository.name }} || true
+      
+            # Создаем директорию для конфигурации приложения
+          mkdir -p /home/${{ secrets.REMOTE_USER }}/docker-configs/${{ github.event.repository.name }}
           
             # Создаем .env файл на сервере с секретами из GitHub Actions
-            cat > /path/to/deployment/.env << EOL
+          cat > /home/${{ secrets.REMOTE_USER }}/docker-configs/${{ github.event.repository.name }}/.env << EOL
           API_TOKEN=${{ secrets.API_TOKEN }}
           PUBLIC_CHAT_ID=${{ secrets.PUBLIC_CHAT_ID }}
           ENV=production
-          
           EOL
           
             # Запускаем новый контейнер с подключенным volume и сетью
@@ -59,6 +61,7 @@ jobs:
               --env-file /path/to/deployment/.env \
               -v ${{ github.event.repository.name }}_data:/app/data \
               --network app \
+              -v /home/${{ secrets.REMOTE_USER }}/docker-configs/${{ github.event.repository.name }}/.env:/app/.env \
               --restart unless-stopped \
               ${{ github.event.repository.name }}:latest
           EOF
