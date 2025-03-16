@@ -120,7 +120,8 @@ class RequestDataBase(RequestHandler):
         seed_req = DetailBySeed(
             seed=seed
         )
-        return self.get(endpoint='all-news/detail-by-seed/{seed}', path_params=seed_req, response_model=DetailBySeedResponse)
+        return self.get(endpoint='all-news/detail-by-seed/{seed}', path_params=seed_req,
+                        response_model=DetailBySeedResponse)
 
     def get_detail_by_seed(self, seed: str) -> DetailBySeedResponse:
         return self.__get_detail_by_seed__(seed=seed)
@@ -129,4 +130,5 @@ class RequestDataBase(RequestHandler):
         data = ToggleMediaResolution(
             seed=seed
         )
-        return self.post(endpoint='setting/toggle-media-resolution-by-seed', data=data, response_model=ToggleMediaResolutionResponse).media_resolution
+        return self.post(endpoint='setting/toggle-media-resolution-by-seed', data=data,
+                         response_model=ToggleMediaResolutionResponse).media_resolution

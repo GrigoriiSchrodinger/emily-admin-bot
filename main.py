@@ -46,7 +46,6 @@ async def send_message():
         else:
             await bot.send_message(message=message)
 
-
         url = f"{get_url_emily_database_handler()}/send-news/create"
         data = {
             "channel": message["channel"],
@@ -56,9 +55,11 @@ async def send_message():
     except Exception as e:
         logging.error(f"Произошла ошибка: {str(e)}")
 
+
 async def main() -> None:
     while True:
         await send_message()
+
 
 if __name__ == '__main__':
     request_db = RequestDataBase()
@@ -66,4 +67,3 @@ if __name__ == '__main__':
     bot = TelegramBot()
     bot.start()
     asyncio.run(main())
-

@@ -13,11 +13,14 @@ SERVICE_URLS = {
     }
 }
 
+
 def get_url_emily_database_handler():
     return SERVICE_URLS[ENV]["emily_database_handler"]
 
+
 def get_url_redis():
     return SERVICE_URLS[ENV]["redis"]
+
 
 def get_url_loki():
     return SERVICE_URLS[ENV]["loki"]
