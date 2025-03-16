@@ -7,9 +7,10 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InputMediaPhoto, FSInputFile, InputMediaVideo
 
-from src.conf import API_TOKEN, PUBLIC_CHAT_ID, redis
+from src.conf import API_TOKEN, PUBLIC_CHAT_ID
 from src.feature.request.RequestHandler import RequestDataBase
 from src.logger import logger
+from src.service import redis
 
 
 class TelegramBot:
