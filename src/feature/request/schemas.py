@@ -1,3 +1,5 @@
+from typing import Optional, Union
+
 from pydantic import BaseModel
 
 
@@ -8,8 +10,8 @@ class GetMediaPathParams(BaseModel):
 
 class SendPost(BaseModel):
     channel: str
-    text: str
     id_post: int
+    message_id: int
 
 
 class DetailByChannelIdPost(BaseModel):
@@ -44,3 +46,9 @@ class ToggleMediaResolution(BaseModel):
 
 class ToggleMediaResolutionResponse(BaseModel):
     media_resolution: bool
+
+class GetRelatedNews(BaseModel):
+    seed: str
+
+class GetRelationshipIdMessage(BaseModel):
+    tied: Union[int, bool]

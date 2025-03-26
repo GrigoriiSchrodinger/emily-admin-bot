@@ -1,13 +1,8 @@
 import asyncio
 import logging
 
-import requests
-
-from src.feature.bot import TelegramBot
-from src.feature.file_manager import FileManager
-from src.feature.request.RequestHandler import RequestDataBase
-from src.service import redis
-from src.service_url import get_url_emily_database_handler
+from src.feature.bot.bot import TelegramBot
+from src.service import redis, request_db, file_manager
 
 logging.basicConfig(level=logging.INFO)
 
@@ -34,24 +29,19 @@ async def send_message():
             )
             if not path_media:
                 logging.error("Ошибка: Не удалось загрузить медиафайлы.")
-                await bot.send_message(message=message)
+                message_id = await bot.send_message(message=message, seed=message["seed"])
             else:
                 list_media = bot.prepare_media(media, message["content"])
                 if not list_media:
                     logging.error("Ошибка: Не удалось подготовить медиафайлы.")
-                    await bot.send_message(message=message)
+                    message_id = await bot.send_message(message=message, seed=message["seed"])
                 else:
                     media_chunk = list_media[:10]
-                    await bot.send_media_group(media=media_chunk, message=message)
+                    message_id = await bot.send_media_group(media=media_chunk, message=message, seed=message["seed"])
         else:
-            await bot.send_message(message=message)
+            message_id = await bot.send_message(message=message, seed=message["seed"])
 
-        url = f"{get_url_emily_database_handler()}/send-news/create"
-        data = {
-            "channel": message["channel"],
-            "id_post": message["id_post"]
-        }
-        requests.post(url, json=data)
+        request_db.create_send_news(channel=message["channel"], id_post=message["id_post"], message_id=message_id)
     except Exception as e:
         logging.error(f"Произошла ошибка: {str(e)}")
 
@@ -62,8 +52,6 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
-    request_db = RequestDataBase()
-    file_manager = FileManager()
     bot = TelegramBot()
     bot.start()
     asyncio.run(main())

@@ -4,7 +4,7 @@ import requests
 from pydantic import BaseModel, ValidationError
 
 from src.feature.request.schemas import DetailByChannelIdPost, DetailBySeed, DetailBySeedResponse, \
-    ToggleMediaResolution, ToggleMediaResolutionResponse
+    ToggleMediaResolution, ToggleMediaResolutionResponse, SendPost, GetRelatedNews, GetRelationshipIdMessage
 from src.service_url import get_url_emily_database_handler
 
 
@@ -109,19 +109,22 @@ class RequestHandler:
 
 
 class RequestDataBase(RequestHandler):
+    def __get_detail_by_seed__(self, seed: str):
+        seed_req = DetailBySeed(
+            seed=seed
+        )
+        return self.get(
+            endpoint='all-news/detail-by-seed/{seed}',
+            path_params=seed_req,
+            response_model=DetailBySeedResponse
+        )
+
     def get_detail_news_by_channel_id_post(self, channel: str, id_post: int):
         details = DetailByChannelIdPost(
             channel=channel,
             id_post=id_post
         )
         return self.get(endpoint="all-news/detail-by-channel-id_post/{channel}/{id_post}", path_params=details)
-
-    def __get_detail_by_seed__(self, seed: str):
-        seed_req = DetailBySeed(
-            seed=seed
-        )
-        return self.get(endpoint='all-news/detail-by-seed/{seed}', path_params=seed_req,
-                        response_model=DetailBySeedResponse)
 
     def get_detail_by_seed(self, seed: str) -> DetailBySeedResponse:
         return self.__get_detail_by_seed__(seed=seed)
@@ -130,5 +133,25 @@ class RequestDataBase(RequestHandler):
         data = ToggleMediaResolution(
             seed=seed
         )
-        return self.post(endpoint='setting/toggle-media-resolution-by-seed', data=data,
-                         response_model=ToggleMediaResolutionResponse).media_resolution
+        return self.post(
+            endpoint='setting/toggle-media-resolution-by-seed',
+            data=data,
+            response_model=ToggleMediaResolutionResponse
+        ).media_resolution
+
+    def create_send_news(self, channel: str, id_post: int, message_id: int):
+        data = SendPost(
+            channel=channel,
+            id_post=id_post,
+            message_id=message_id
+        )
+        self.post(endpoint="send-news/create", data=data)
+
+    def get_related_news(self, seed: str) -> GetRelationshipIdMessage:
+        data = GetRelatedNews(seed=seed)
+        response = self.get(
+            endpoint='/all-news/related-news/{seed}',
+            path_params=data,
+            response_model=GetRelationshipIdMessage
+        )
+        return response
