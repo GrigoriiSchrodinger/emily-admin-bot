@@ -22,7 +22,6 @@ class LokiHandler(logging.Handler):
                 "function": record.funcName
             }
 
-            # Преобразуем числовые значения
             numeric_fields = {}
             for key, value in tags.items():
                 if isinstance(value, (int, float)):
